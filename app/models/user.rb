@@ -21,6 +21,14 @@ class User < ActiveRecord::Base
       Room.where("first_user_id = :user_id OR second_user_id = :user_id", user_id: id)
     end
   end
+
+  def active_rooms
+    if self.new_record?
+      []
+    else
+      rooms.select(&:is_active?)
+    end
+  end
   def name
     "#{firstname} #{lastname}".strip
   end

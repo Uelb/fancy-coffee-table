@@ -41,4 +41,6 @@ gem 'spring',        group: :development
 
 gem 'devise'
 gem 'geocoder'
+gem 'mini_magick'
 gem 'carrierwave', github: 'carrierwaveuploader/carrierwave'
+gem 'active_model_serializers'

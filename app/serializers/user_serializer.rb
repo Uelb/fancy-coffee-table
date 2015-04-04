@@ -1,4 +1,4 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :firstname, :birthday, :gender
-  has_many :pictures
+  attributes :id, :email, :username, :authentication_token
+  # has_many :pictures
 end

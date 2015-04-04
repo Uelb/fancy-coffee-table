@@ -1,19 +1,26 @@
 class User < ActiveRecord::Base
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
+  
+  # Associations
   has_many :rooms_as_first_user, class_name: 'Room', foreign_key: :first_user_id
   has_many :rooms_as_second_user, class_name: 'Room', foreign_key: :second_user_id
-  mount_uploaders :pictures, PictureUploader
   has_many :sent_messages, class_name: 'Message', foreign_key: :sender_id
   has_many :received_messages, class_name: 'Message', foreign_key: :recipient_id
   has_many :sent_evaluations, class_name: 'Evaluation', foreign_key: :reviewer_id
   has_many :received_evaluations, class_name: 'Evaluation', foreign_key: :reviewed_user_id
-  validates_presence_of :email, :password, :firstname, :lastname
+  
+  # Validations
+  validates_presence_of :email, :password, :username
   validates :min_age, numericality: {greater_than_or_equal_to: 18, less_than_or_equal_to: 80}
   validates :max_age, numericality: {greater_than_or_equal_to: 18, less_than_or_equal_to: 80}
+  
+  #Others
   reverse_geocoded_by :latitude, :longitude
+  before_create :generate_token
+  mount_uploaders :pictures, PictureUploader
+    
+  # Instance methods
   def rooms
     if self.new_record?
       []
@@ -39,10 +46,21 @@ class User < ActiveRecord::Base
       []
     end
   end
+
+  def average_score
+    received_evaluations.average(:score)
+  end
+
+  # Class methods
   def self.around(latitude, longitude, kms=5)
     User.near([latitude, longitude], kms, units: :km)
   end
-  def average_score
-    received_evaluations.average(:score)
+
+  private
+  def generate_token
+    self.authentication_token = loop do
+      random_authentication_token = SecureRandom.urlsafe_base64(nil, false)
+      break random_authentication_token unless User.exists?(authentication_token: random_authentication_token)
+    end
   end
 end

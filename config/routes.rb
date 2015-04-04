@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, :controllers => {sessions: 'sessions', registrations: 'registrations'}
+  
+  match '*path' => 'application#cors_preflight_check', :via => :options
+
   resources :users, only: [], shallow: true do 
     resources :users, only: :index
     resources :rooms, only: [:index, :create, :destroy, :update] do 

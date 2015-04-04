@@ -18,6 +18,14 @@ class RoomsController < ApplicationController
     # request is done or to make the user wait for someone available. We should
     # probably implement a queue and use websocket to connect the user to the room
     # and for subsequent calls
+    if room = Room.where(second_user_id: nil).first
+      room.second_user = current_user
+      room.save!
+      # Add the user to the first user websocket channel
+    else
+      current_user.rooms_as_first_user.create(create_params)
+      # Create a channel with the first user id
+    end
   end
 
   def update
@@ -56,5 +64,10 @@ class RoomsController < ApplicationController
         end
       end
     end
+  end
+
+  private
+  def create_params
+    params.require(:room).permit(:latitude, :longitude)
   end
 end

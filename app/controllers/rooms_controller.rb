@@ -12,6 +12,15 @@ class RoomsController < ApplicationController
       end
     end
   end
+
+  def show
+    room = Room.find params[:id]
+    if room.first_user == current_user || room.second_user == current_user
+      render json: room
+    else
+      render nothing: true, status: :forbidden
+    end
+  end
   
   def create
     # This is the most difficult part, we need to find someone at the moment the
@@ -20,12 +29,13 @@ class RoomsController < ApplicationController
     # and for subsequent calls
     if room = Room.where(second_user_id: nil).first
       room.second_user = current_user
+      # Send the id of the common room
       room.save!
-      # Add the user to the first user websocket channel
+      WebsocketRails[room.channel_name].trigger "new_second_user", room.second_user_id
     else
-      current_user.rooms_as_first_user.create(create_params)
-      # Create a channel with the first user id
+      room = current_user.rooms_as_first_user.create!(create_params)
     end
+    render json: room
   end
 
   def update

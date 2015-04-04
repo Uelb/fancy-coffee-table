@@ -1,5 +1,5 @@
 class RoomSerializer < ActiveModel::Serializer
-  attributes :id, :first_user_id, :second_user_id, :first_user_profile, :second_user_profile
+  attributes :id, :first_user_id, :second_user_id, :first_user_profile, :second_user_profile, :channel_name
   has_many :messages
 
   def first_user_profile

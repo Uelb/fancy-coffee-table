@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
   resources :users, only: [], shallow: true do 
     resources :users, only: :index
-    resources :rooms, only: [:index, :create, :destroy, :update] do 
+    resources :rooms, only: [:index, :create, :destroy, :update, :show] do 
       resources :messages, only: [:index, :create, :destroy, :update]
     end
     resources :evaluations, only: [:index, :create, :update] do 

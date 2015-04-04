@@ -19,6 +19,7 @@ class MessagesController < ApplicationController
           @room.first_user
         end
         message = @room.messages.create(create_params.merge(sender: current_user, recipient: recipient))
+        WebsocketRails.users[recipient.id].send_message :new_message, message
         render json: message
       end
     end
